@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace OpenAchievements.Client {
     internal class OAConstants {
         public static string VERSION = "1.0";
-        public static string SERVICE_URL = "http://localhost:81/service/service.php";
+        public static string SERVICE_URL = "https://www.open-achievements.com/service/service.php";
         public static string TOKEN_STORAGE_FOLDER = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TheEnginesOfCreation\\OpenAchievements\\";
         public static string TOKEN_STORAGE_PATH = TOKEN_STORAGE_FOLDER + "oa.dat";
 
