@@ -129,7 +129,7 @@ OAResult<OALeaderboard> result = await oaClient.GetLeaderboardData("leaderboard_
 * `EntryCount` (`int`) The total number of entries on this leaderboard.
 
 *methods*
-* GetEnumerator() (`IEnumerator`) Gets an enumerator to enumerate over the leaderboard entries. Each entry is represented as a `OALeaderboardEntry` object.
+* `GetEnumerator()` (`IEnumerator`) Gets an enumerator to enumerate over the leaderboard entries. Each entry is represented as a `OALeaderboardEntry` object.
 
 Because `OALeaderboard` implements `IEnumerable`, the entries can be enumerated through with a for-each loop
 
