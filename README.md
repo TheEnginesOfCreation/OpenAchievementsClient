@@ -1,9 +1,9 @@
 # OpenAchievementsClient
-C# implementation of OpenAchievements Web API client. For more information about OpenAchievements, visit https://www.open-achievements.com
+.NET implementation of OpenAchievements Web API client. For more information about OpenAchievements, visit https://www.open-achievements.com
 
 ## Getting started
 
-...
+The easiest way to get started using the OpenAchievements client for .NET is to add it to your project via NuGet. Search for "OpenAchievments" and add the [OpenAchievements.Client](https://www.nuget.org/packages/OpenAchievements.Client) package (author name is Eraesr) to your projects.
 
 ## Usage
 
