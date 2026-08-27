@@ -5,6 +5,34 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>OpenAchievements.Client</RootNamespace>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>OpenAchievements .NET client</Title>
+    <PackageId>OpenAchievements.Client</PackageId>
+    <Company>The Engines of Creation</Company>
+    <Authors>The Engines of Creation</Authors>
+    <Copyright>Copyright The Engines of Creation 2026</Copyright>
+    <Description>.NET client for OpenAchievements integration</Description>
+    <PackageProjectUrl>https://github.com/TheEnginesOfCreation/OpenAchievementsClient</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/TheEnginesOfCreation/OpenAchievementsClient</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
