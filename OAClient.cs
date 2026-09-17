@@ -60,8 +60,12 @@ namespace OpenAchievements.Client {
 
         /// <summary>Creates a new session for a user.</summary>
         /// <param name="id">Either the email address the user used to register at OpenAchievements or the DisplayName#idTag ID.</param>
+        /// <param name="description">
+        /// The description for this connection request. Will be visible to user. 
+        /// Recommended to supply some information here that the user can use to identify the device from which the request originated, like device name.
+        /// </param>
         /// <returns>True when a new session was created, false when no new session was created.</returns>
-        public async Task<OAResult<bool>> CreateSession(string id) {
+        public async Task<OAResult<bool>> CreateSession(string id, string description) {
             OAResult<OASessionStatus> result = await GetSessionStatus();
 
             if (result.Result != OASessionStatus.NoSession) {
@@ -70,6 +74,7 @@ namespace OpenAchievements.Client {
 
             OARequest request = CreateRequest(OAConstants.ENDPOINT_USER, "creategamesession");
             request.AddArgument("id", id);
+            request.AddArgument("description", description);
 
             OAResponse response = await request.DoRequest();
 
@@ -131,6 +136,8 @@ namespace OpenAchievements.Client {
             }
         }
 
+        /// <summary>Gets a list of private IDs for achievements the user has unlocked</summary>
+        /// <returns></returns>
         public async Task<OAResult<List<string>>> GetUnlockedAchievements() {
             OARequest request = CreateRequest(OAConstants.ENDPOINT_ACHIEVEMENTS, "getunlocked");
             OAResponse response = await request.DoRequest();
@@ -144,6 +151,8 @@ namespace OpenAchievements.Client {
             }
         }
 
+        /// <summary>Gets the displayname for the current user</summary>
+        /// <returns></returns>
         public async Task<OAResult<string>> GetCurrentUser() {
             OARequest request = CreateRequest(OAConstants.ENDPOINT_USER, "getcurrentuser");
             OAResponse response = await request.DoRequest();
@@ -155,10 +164,26 @@ namespace OpenAchievements.Client {
             }
         }
 
+        /// <summary>Submit a new highscore to a leaderboard for the current user</summary>
+        /// <param name="leaderboardPrivateId">Private ID of the leaderboard to submit score for</param>
+        /// <param name="score">New highscore for the user</param>
+        /// <returns></returns>
         public async Task<OAResult<bool>> SubmitLeaderboardScore(string leaderboardPrivateId, int score) {
+            return await SubmitLeaderboardScore(leaderboardPrivateId, score, null);
+        }
+
+        /// <summary>Submit a new highscore to a leaderboard for the current user</summary>
+        /// <param name="leaderboardPrivateId">Private ID of the leaderboard to submit score for</param>
+        /// <param name="score">New highscore for the user</param>
+        /// <param name="verificationData">Developer supplied data (max 16.384 characters) the developer can use to verify the high score claim</param>
+        /// <returns></returns>
+        public async Task<OAResult<bool>> SubmitLeaderboardScore(string leaderboardPrivateId, int score, string? verificationData) {
             OARequest request = CreateRequest(OAConstants.ENDPOINT_LEADERBOARDS, "submitscore");
             request.AddArgument("leaderboardPrivateId", leaderboardPrivateId);
             request.AddArgument("score", score);
+            if (verificationData != null) {
+                request.AddArgument("verificationData", verificationData);
+            }
 
             OAResponse response = await request.DoRequest();
 

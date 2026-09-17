@@ -58,10 +58,12 @@ The resulting `OAResult` contains an `OASessionStatus` value.
 ### Create a new session
 
 To create a new session for a user you can use the `CreateSession()` method. This method takes the user's OpenAchievements ID or their email address as argument. Both are strings, both are valid.
+A description can also be supplied, which may help the user to identify where the request originated from. It is recommended to supply a user readable device name or ID here.
 The resulting boolean is `true` when the session was successfully created and `false` if not.
 
 ```csharp
-OAResult<bool> result = await oaClient.CreateSession("Somebody#8573");
+string description = System.Environment.MachineName;
+OAResult<bool> result = await oaClient.CreateSession("Somebody#8573", description);
 ```
 
 ### Get currently connected user's displayname
@@ -162,9 +164,13 @@ OAResult<int> result = await oaClient.GetLeaderboardScore("leaderboard_private_i
 ### Submit a leaderboard score for current user
 
 The private ID for the leaderboard can be found on the game's developer page. Note that you should **never share private leaderboard IDs with anyone**.
+Verification data is an optional string (max length 16384 characters) that can be submitted by the developer. This data will never be visible to the end user, but can be retrieved by the developer on the leaderboard page on the website.
+Such data may be used by the developers themselves to verify the validity of the highscore claim. For instance, by supplying the actual user input that resulted in the highscore or a representation of a
+gamestate through which the highscore was calculated.
 The resulting boolean will be `true` when the score was successfully set on the leaderboard and `false` if not.
 
 ```csharp
 int score = 2175;
-OAResult<bool> result = await oaClient.SubmitLeaderboardScore("leaderboard_private_id", score);
+string verificationData = "...";
+OAResult<bool> result = await oaClient.SubmitLeaderboardScore("leaderboard_private_id", score, verificationData);
 ```
