@@ -194,6 +194,9 @@ namespace OpenAchievements.Client {
             }
         }
 
+        /// <summary>Retrieve leaderboard highscore for the current user</summary>
+        /// <param name="leaderboardPrivateId">Private ID of the leaderboard to retrieve user's score for</param>
+        /// <returns>The user's highscore on the specified leaderboard</returns>
         public async Task<OAResult<int>> GetLeaderboardScore(string leaderboardPrivateId) {
             OARequest request = CreateRequest(OAConstants.ENDPOINT_LEADERBOARDS, "getuserscore");
             request.AddArgument("leaderboardPrivateId", leaderboardPrivateId);
@@ -207,6 +210,11 @@ namespace OpenAchievements.Client {
             }
         }
 
+        /// <summary>Retrieve leaderboard and leaderboard highscore data for a leaderboard</summary>
+        /// <param name="leaderboardPrivateId">Private ID of the leaderboard to retrieve data for</param>
+        /// <param name="offset">The number of highscore entries to skip (ordered from highest score to lowest score)</param>
+        /// <param name="limit">The number of highscore entries to retrieve</param>
+        /// <returns></returns>
         public async Task<OAResult<OALeaderboard>> GetLeaderboardData(string leaderboardPrivateId, int offset, int limit) {
             OARequest request = CreateRequest(OAConstants.ENDPOINT_LEADERBOARDS, "getdata");
             request.AddArgument("leaderboardPrivateId", leaderboardPrivateId);
