@@ -225,7 +225,7 @@ namespace OpenAchievements.Client {
 
             if (response.Status == OAResponse.STATUS_OK) {
                 OAJson leaderboardJson = response.GetJson().GetJson("leaderboard");
-                OALeaderboard leaderboard = new OALeaderboard(leaderboardJson.GetString("name"), leaderboardJson.GetInt("entryCount"));
+                OALeaderboard leaderboard = new OALeaderboard(leaderboardJson.GetString("name"), (OALeaderboardType)leaderboardJson.GetInt("type"), leaderboardJson.GetInt("entryCount"));
 
                 List<OAJson> list = response.GetJson().GetJsonArray("entries");
                 foreach (OAJson entryJson in list) {

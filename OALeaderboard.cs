@@ -11,10 +11,12 @@ namespace OpenAchievements.Client {
         private List<OALeaderboardEntry> entries = new List<OALeaderboardEntry>();
 
         public string Name { get; private set; }
+        public OALeaderboardType Type { get; private set; }
         public int EntryCount { get; private set; }
 
-        internal OALeaderboard(string name, int entryCount) {
+        internal OALeaderboard(string name, OALeaderboardType type, int entryCount) {
             Name = name;
+            Type = type;
             EntryCount = entryCount;
         }
 

@@ -1,6 +1,13 @@
 # OpenAchievementsClient
 .NET implementation of OpenAchievements Web API client. For more information about OpenAchievements, visit https://www.open-achievements.com
 
+## Compatibility
+
+This is a list of versions of the client and what update of the OpenAchievements web API they are compatible with. For an update history of the web API itself, visit the [OpenAchievements web API documentation](https://open-achievements.com/documentation.html?topic=webapi).
+
+* v1.1.0 - update 18 september 2026
+* v1.0.0 - update 15 September 2026
+
 ## Getting started
 
 The easiest way to get started using the OpenAchievements client for .NET is to add it to your project via NuGet. Search for "OpenAchievments" and add the [OpenAchievements.Client](https://www.nuget.org/packages/OpenAchievements.Client) package (author name is Eraesr) to your projects.
@@ -128,6 +135,7 @@ OAResult<OALeaderboard> result = await oaClient.GetLeaderboardData("leaderboard_
 
 *properties*
 * `Name` (`string`) The name of the leaderboard.
+* `Type` (`OALeaderboardType`) The type of leaderboard.
 * `EntryCount` (`int`) The total number of entries on this leaderboard.
 
 *methods*
@@ -142,12 +150,18 @@ foreach (OALeaderboardEntry entry in oaLeaderboard) {
 }
 ```
 ---
+** enum OALeaderboardType**
+
+* `ScoreHigherIsBetter` Leaderboard based on score. The higher the score, the better.
+* `TimeLowerIsBetter` Leaderboard based on time. The lower the time, the better.
+* `TimeHigherIsBetter` Leaderboard based on time. The higher the time, the better.
+---
 **class OALeaderboardEntry**
 
 *properties*
 * `Rank` (`int`) The rank of this entry on the leaderboard.
 * `Name` (`string`) The displayname of the user whose entry this is on the leaderboard.
-* `Score` (`int`) The score for this entry.
+* `Score` (`int`) The score for this entry. In case of a time based leaderboard, this is the time in milliseconds.
 * `Date` (`string`) The date at which this entry was created or last updated. The date is a `string` formatted as YYYY-MM-dd.
 * `IsCurrentUser` (`bool`) Boolean indicating whether or not this is the current user's entry on this leaderboard.
 ---
@@ -164,9 +178,13 @@ OAResult<int> result = await oaClient.GetLeaderboardScore("leaderboard_private_i
 ### Submit a leaderboard score for current user
 
 The private ID for the leaderboard can be found on the game's developer page. Note that you should **never share private leaderboard IDs with anyone**.
+
+When submitting a time to a time-based leaderboard, submit the time in number of milliseconds. For example, a time of 1 minute, 24 seconds and 174 milliseconds ends up as a score of 84174.
+
 Verification data is an optional string (max length 16384 characters) that can be submitted by the developer. This data will never be visible to the end user, but can be retrieved by the developer on the leaderboard page on the website.
 Such data may be used by the developers themselves to verify the validity of the highscore claim. For instance, by supplying the actual user input that resulted in the highscore or a representation of a
 gamestate through which the highscore was calculated.
+
 The resulting boolean will be `true` when the score was successfully set on the leaderboard and `false` if not.
 
 ```csharp
