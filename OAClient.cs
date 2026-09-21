@@ -7,8 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace OpenAchievements.Client {
@@ -145,7 +143,7 @@ namespace OpenAchievements.Client {
             if (response.Status == OAResponse.STATUS_OK) {
                 List<string> list = new List<string>();
 
-                return new OAResult<List<string>>(OAResultStatus.Ok, response.GetJson().GetList<string>("achievements"));
+                return new OAResult<List<string>>(OAResultStatus.Ok, response.GetJson().GetStringArray("achievements"));
             } else {
                 return new OAResult<List<string>>(OAResultStatus.InternalError, new List<string>());
             }
@@ -224,10 +222,10 @@ namespace OpenAchievements.Client {
             OAResponse response = await request.DoRequest();
 
             if (response.Status == OAResponse.STATUS_OK) {
-                OAJson leaderboardJson = response.GetJson().GetJson("leaderboard");
+                OAJson leaderboardJson = response.GetJson().getJSONObject("leaderboard");
                 OALeaderboard leaderboard = new OALeaderboard(leaderboardJson.GetString("name"), (OALeaderboardType)leaderboardJson.GetInt("type"), leaderboardJson.GetInt("entryCount"));
 
-                List<OAJson> list = response.GetJson().GetJsonArray("entries");
+                List<OAJson> list = response.GetJson().GetObjectArray("entries");
                 foreach (OAJson entryJson in list) {
                     OALeaderboardEntry entry = new OALeaderboardEntry(
                         entryJson.GetInt("rank"),

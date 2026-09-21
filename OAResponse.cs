@@ -30,7 +30,7 @@ namespace OpenAchievements.Client {
         }
 
         public OAJson GetJson() {
-            OAJson json = OAJson.FromString(Body);
+            OAJson json = new OAJson(Body);
             return json;
         }
     }

@@ -1,77 +1,201 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OpenAchievements.Client {
     internal class OAJson {
-        private JsonNode jsonNode;
 
-        public static OAJson FromString(string serializedJson) {
-            try {
-                JsonObject? body = JsonSerializer.Deserialize<JsonObject>(serializedJson);
-                if (body != null) {
-                    return new OAJson(body);
+        private const int STATE_DEFAULT = 0;
+        private const int STATE_IN_PROPERTY_KEY = 1;
+        private const int STATE_AFTER_PROPERTY_KEY = 2;
+        private const int STATE_IN_STRING = 3;
+        private const int STATE_IN_INT = 4;
+        private const int STATE_IN_BOOL = 5;
+        private const int STATE_IN_ARRAY = 6;
+        private const int STATE_IN_OBJECT = 7;
+
+        private string SerializedJSON;
+        private Dictionary<string, string> data = new Dictionary<string, string>();
+
+        public OAJson(string serializedJSON) {
+            SerializedJSON = serializedJSON;
+            Parse();
+        }
+
+        private void Parse() {
+            int nestCount = 0;
+            int index = 0;
+            int state = STATE_DEFAULT;
+            string propertyKeyBuffer = "";
+            string propertyValueBuffer = "";
+
+            while (index < SerializedJSON.Length) {
+                char chr = SerializedJSON[index];
+
+                switch (state) {
+                    case STATE_DEFAULT:
+                        if (chr == '"') {
+                            state = STATE_IN_PROPERTY_KEY;
+                            propertyKeyBuffer = "";
+                            propertyValueBuffer = "";
+                        }
+                        break;
+                    case STATE_IN_PROPERTY_KEY:
+                        if (chr == '"') {
+                            state = STATE_AFTER_PROPERTY_KEY;
+                        } else {
+                            propertyKeyBuffer += chr;
+                        }
+                        break;
+                    case STATE_AFTER_PROPERTY_KEY:
+                        if (chr == '"') {
+                            state = STATE_IN_STRING;
+                        } else if (chr >= 48 && chr <= 57) {
+                            state = STATE_IN_INT;
+                            propertyValueBuffer += chr;
+                        } else if (chr == 'f' || chr == 'F' || chr == 't' || chr == 'T') {
+                            state = STATE_IN_BOOL;
+                            propertyValueBuffer += chr;
+                        } else if (chr == '[') {
+                            state = STATE_IN_ARRAY;
+                            propertyValueBuffer += chr;
+                        } else if (chr == '{') {
+                            state = STATE_IN_OBJECT;
+                            nestCount = 1;
+                            propertyValueBuffer += chr;
+                        }
+                        break;
+                    case STATE_IN_STRING:
+                        if (chr == '"') {
+                            state = STATE_DEFAULT;
+                            data.Add(propertyKeyBuffer, propertyValueBuffer);
+                        } else {
+                            propertyValueBuffer += chr;
+                        }
+                        break;
+                    case STATE_IN_INT:
+                    case STATE_IN_BOOL:
+                        if (chr == ',' || chr == '}') {
+                            state = STATE_DEFAULT;
+                            data.Add(propertyKeyBuffer, propertyValueBuffer);
+                        } else if (chr != ' ') {
+                            propertyValueBuffer += chr;
+                        }
+                        break;
+                    case STATE_IN_ARRAY:
+                        propertyValueBuffer += chr;
+                        if (chr == ']') {
+                            state = STATE_DEFAULT;
+                            data.Add(propertyKeyBuffer, propertyValueBuffer);
+                        }
+                        break;
+                    case STATE_IN_OBJECT:
+                        propertyValueBuffer += chr;
+                        if (chr == '{') {
+                            nestCount++;
+                        }
+                        if (chr == '}') {
+                            nestCount--;
+                        }
+                        if (nestCount == 0) {
+                            state = STATE_DEFAULT;
+                            data.Add(propertyKeyBuffer, propertyValueBuffer);
+                        }
+                        break;
                 }
-            } catch (JsonException e) {
-                //Console.WriteLine("serialized json = " + serializedJson);
+                index++;
             }
-            
-            return new OAJson();
-        }
-
-        public OAJson() {
-        }
-
-        public OAJson(JsonNode jsonNode) {
-            this.jsonNode = jsonNode;
         }
 
         public bool HasKey(string key) {
-            return jsonNode != null && jsonNode[key] != null;
+            return data.ContainsKey(key);
         }
 
-        public OAJson? Get(string key) {
-            return jsonNode != null && jsonNode[key] != null ? new OAJson(jsonNode[key]) : null;
-        }
 
         public string GetString(string key) {
-            return jsonNode != null && jsonNode[key] != null ? jsonNode[key].GetValue<string>() : "";
+            return data[key];
         }
 
         public int GetInt(string key) {
-            return jsonNode != null && jsonNode[key] != null ? jsonNode[key].GetValue<int>() : 0;
+            string value = data[key];
+            int result = 0;
+            if (int.TryParse(value, out result)) {
+                return result;
+            }
+            return 0;
         }
 
         public bool GetBool(string key) {
-            return jsonNode != null && jsonNode[key] != null ? jsonNode[key].GetValue<bool>() : false;
+            string value = data[key];
+            return value.ToLower() == "true";
         }
 
-        public List<T> GetList<T>(string key) {
-            if (jsonNode != null && jsonNode[key] != null) {
-                IEnumerable<T> enumerable = jsonNode[key].AsArray().GetValues<T>();
-                return new List<T>(enumerable);
+        public OAJson getJSONObject(string key) {
+            return new OAJson(data[key]);
+        }
+
+        public List<string> GetStringArray(string key) {
+            string serializedArray = data[key];
+            List<string> arrayValues = GetArrayValues(serializedArray);
+            return arrayValues;
+        }
+
+        public List<OAJson> GetObjectArray(string key) {
+            List<string> arrayValues = GetStringArray(key);
+            List<OAJson> result = new List<OAJson>();
+            foreach (string value in arrayValues) {
+                result.Add(new OAJson(value));
             }
-            return new List<T>();
+            return result;
         }
 
-        public List<OAJson> GetJsonArray(string key) {
-            List<OAJson> list = new List<OAJson>();
-            if (jsonNode != null && jsonNode[key] != null) {
-                foreach (JsonNode? node in jsonNode[key].AsArray()) {
-                    if (node != null) {
-                        list.Add(new OAJson(node));
-                    }
+        private List<string> GetArrayValues(string serializedArray) {
+            List<string> result = new List<string>();
+            int index = 0;
+            int state = STATE_DEFAULT;
+            int nestCount = 0;
+
+            string itemBuffer = "";
+            while (index < serializedArray.Length) {
+                char chr = serializedArray[index];
+
+                switch (state) {
+                    case STATE_DEFAULT:
+                        if (chr == '"') {
+                            state = STATE_IN_STRING;
+                        } else if (chr == '{') {
+                            state = STATE_IN_OBJECT;
+                            nestCount = 1;
+                            itemBuffer += chr;
+                        }
+                        break;
+                    case STATE_IN_STRING:
+                        if (chr == '"') {
+                            state = STATE_DEFAULT;
+                            result.Add(itemBuffer);
+                            itemBuffer = "";
+                        } else {
+                            itemBuffer += chr;
+                        }
+                        break;
+                    case STATE_IN_OBJECT:
+                        itemBuffer += chr;
+                        if (chr == '{') {
+                            nestCount++;
+                        }
+                        if (chr == '}') {
+                            nestCount--;
+                        }
+                        if (nestCount == 0) {
+                            state = STATE_DEFAULT;
+                            result.Add(itemBuffer);
+                            Debug.WriteLine("found object in array " + itemBuffer);
+                            itemBuffer = "";
+                        }
+                        break;
                 }
+                index++;
             }
-            return list;
-        }
-
-        public OAJson GetJson(string key) {
-            return jsonNode != null && jsonNode[key] != null ? new OAJson(jsonNode[key]) : new OAJson();
+            return result;
         }
     }
 }
