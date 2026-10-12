@@ -74,7 +74,7 @@ namespace OpenAchievements.Client {
         }
 
         private MultipartFormDataContent GetFormData() {
-            MultipartFormDataContent formData = new MultipartFormDataContent();
+            MultipartFormDataContent formData = new MultipartFormDataContent("oaboundary");
             if (!string.IsNullOrEmpty(token)) {
                 WriteLog("  token = " + token);
                 formData.Add(new StringContent(token, Encoding.UTF8, MediaTypeNames.Text.Plain), "token");
@@ -88,6 +88,8 @@ namespace OpenAchievements.Client {
                 WriteLog("  " + key + " = " + arguments[key]);
                 formData.Add(new StringContent(arguments[key], Encoding.UTF8, MediaTypeNames.Text.Plain), key);
             }
+            formData.Headers.Remove("Content-Type");
+            formData.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=oaboundary");
             return formData;
         }
 
