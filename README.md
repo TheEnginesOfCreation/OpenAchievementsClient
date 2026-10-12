@@ -5,8 +5,9 @@
 
 This is a list of versions of the client and what update of the OpenAchievements web API they are compatible with. For an update history of the web API itself, visit the [OpenAchievements web API documentation](https://open-achievements.com/documentation.html?topic=webapi).
 
-* v1.1.0 - update 18 september 2026
-* v1.0.0 - update 15 September 2026
+* v1.2.0 - no API changes.
+* v1.1.0 - update 18 september 2026.
+* v1.0.0 - update 15 September 2026.
 
 ## Getting started
 
