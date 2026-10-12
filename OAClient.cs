@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace OpenAchievements.Client {
     public class OAClient {
+        internal static HttpClient httpClient = new HttpClient();
         private string serviceUrl = OAConstants.SERVICE_URL;
         private string gamePublicId;
         private string gamePrivateId;

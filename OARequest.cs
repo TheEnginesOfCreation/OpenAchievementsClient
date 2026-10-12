@@ -18,7 +18,6 @@ namespace OpenAchievements.Client {
         private string method;
         private string gamePrivateId;
         private string? token;
-        private HttpClient httpClient = new HttpClient();
         private Dictionary<string, string> arguments = new Dictionary<string, string>();
         private bool debugEnabled;
 
@@ -56,7 +55,7 @@ namespace OpenAchievements.Client {
             WriteLog("\nExecuting request to: " + GetUrl());
             OAResponse oaResponse;
             try {
-                HttpResponseMessage response = await httpClient.PostAsync(GetUrl(), GetFormData());
+                HttpResponseMessage response = await OAClient.httpClient.PostAsync(GetUrl(), GetFormData());
                 if (response.IsSuccessStatusCode) {
                     string responseBody = await response.Content.ReadAsStringAsync();
                     WriteLog("response to " + GetUrl() + " = " + responseBody);
