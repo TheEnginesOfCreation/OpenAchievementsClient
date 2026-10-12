@@ -1,4 +1,4 @@
-﻿#define DEBUG
+#define DEBUG
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace OpenAchievements.Client {
     internal class OARequest {
+        private string serviceUrl;
         private string endpoint;
         private string method;
         private string gamePrivateId;
@@ -42,7 +43,8 @@ namespace OpenAchievements.Client {
             return AddArgument(key, argValue);
         }
 
-        public OARequest(string endpoint, string method, bool debugEnabled, string gamePrivateId, string? token = null) {
+        public OARequest(string serviceUrl, string endpoint, string method, bool debugEnabled, string gamePrivateId, string? token = null) {
+            this.serviceUrl = serviceUrl;
             this.endpoint = endpoint;
             this.method = method;
             this.gamePrivateId = gamePrivateId;
@@ -60,9 +62,11 @@ namespace OpenAchievements.Client {
                     WriteLog("response to " + GetUrl() + " = " + responseBody);
                     oaResponse = new OAResponse(responseBody);
                 } else {
+                    WriteLog("error for " + GetUrl() + " = " + response.StatusCode + " (" + response.ReasonPhrase + ")");
                     oaResponse = new OAResponse(response.StatusCode);
                 }
             } catch (HttpRequestException e) {
+                WriteLog("exception occurred: " + e.Message);
                 oaResponse = new OAResponse(System.Net.HttpStatusCode.ServiceUnavailable);
             }
             
@@ -88,7 +92,7 @@ namespace OpenAchievements.Client {
         }
 
         private string GetUrl() {
-            return OAConstants.SERVICE_URL + "/" + endpoint + "/" + method;
+            return serviceUrl + "/" + endpoint + "/" + method;
         }
 
         private void WriteLog(string message) {

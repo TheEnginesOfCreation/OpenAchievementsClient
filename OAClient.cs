@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualBasic;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace OpenAchievements.Client {
     public class OAClient {
+        private string serviceUrl = OAConstants.SERVICE_URL;
         private string gamePublicId;
         private string gamePrivateId;
 
@@ -244,7 +245,13 @@ namespace OpenAchievements.Client {
         }
 
         private OARequest CreateRequest(string endpoint, string method) {
-            return new OARequest(endpoint, method, DebugEnabled, gamePrivateId, tokenStorage.GetToken(gamePublicId));
+            return new OARequest(serviceUrl, endpoint, method, DebugEnabled, gamePrivateId, tokenStorage.GetToken(gamePublicId));
+        }
+
+        /// <summary>Sets the url to which requests are sent. Normally this shouldn't be changed.</summary>
+        /// <param name="serviceUrl"></param>
+        public void SetServiceUrl(string serviceUrl) {
+            this.serviceUrl = serviceUrl;
         }
     }
 }
